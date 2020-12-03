@@ -1,0 +1,21 @@
+module "dns" {
+  for_each   = var.stack
+  cnames     = try(tolist(each.value.subdomains), [each.key])
+  domain     = local.domain
+  private_ip = var.globals.networking.host_ip
+  external_dns = tobool(try(try(tomap(each.value.networks), {
+    "frontend" : false
+  }).frontend, false))
+  logo_url              = tostring(try(each.value.logo_url, ""))
+  name                  = lower(tostring(each.key))
+  okta_oauth            = tobool(try(each.value.okta_oauth, true))
+  source                = "jd4883/internal-external-dns-automation-docker/docker"
+  labels                = merge(local.labels.v2, try(each.value.labels, {}))
+  emails                = local.emails
+  envars                = local.envars
+  upstream_url          = "http://${try(each.value.networks.vpn, try(each.value.hostname, lower(each.key)))}:${split(":", replace(try(tolist(each.value.ports), ["80:80"]).0, "/", ":")).1}"
+  customResponseHeaders = var.customResponseHeaders
+  organizr_cname        = var.organizr_cname
+  STSSeconds            = var.STSSeconds
+  networks              = [data.docker_network.backend.id, data.docker_network.frontend.id]
+}
