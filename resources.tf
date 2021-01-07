@@ -42,6 +42,10 @@ resource "docker_container" "container" {
   tmpfs             = try(tomap(each.value.tmpfs), {})
   entrypoint        = try(tolist(each.value.Entrypoint), [])
   network_mode      = try("container:${each.value.networks.vpn}", "default")
+  working_dir       = try(each.value.working_dir, "")
+  user              = try(each.value.user, "")
+  upload            = try(each.value.upload, [])
+  ulimit            = try(each.value.ulimit, [])
   dynamic "ports" {
     for_each = try(try(each.value.networks.vpn, "default") == "default" ? tolist(each.value.ports) : [], [])
     content {
