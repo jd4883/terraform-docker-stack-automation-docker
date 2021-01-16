@@ -106,7 +106,7 @@ resource "docker_container" "container" {
       try(
         each.value.networks.frontend,
         false
-        ) && ! try(
+        ) && !try(
         each.value.okta_oauth,
         true
         ) && try(
