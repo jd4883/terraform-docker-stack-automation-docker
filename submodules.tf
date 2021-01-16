@@ -7,6 +7,7 @@ module "dns" {
     "frontend" : false
   }).frontend, false)))
   internal_dns          = tobool(try(each.value.internal_dns, true))
+  
   logo_url              = tostring(try(each.value.logo_url, ""))
   name                  = lower(tostring(each.key))
   okta_oauth            = tobool(try(each.value.okta_oauth, true))
