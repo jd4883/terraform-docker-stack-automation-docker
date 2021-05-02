@@ -1,6 +1,6 @@
 resource "docker_image" "image" {
   for_each = try(var.stack, {})
-  name     = "${tostring(try(each.value.Image, each.key))}:${tostring(try(each.value.tags, "latest"))}"
+  name     = join(":", [try(each.value.Image, each.key), try(each.value.tags, "latest")])
 }
 
 resource "docker_container" "container" {
