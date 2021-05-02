@@ -25,7 +25,7 @@ resource "docker_container" "container" {
   hostname          = try(each.value.networks.vpn, "default") == "default" ? try(each.value.hostname, lower(each.key)) : null
   dns_opts          = try(tolist(each.value.dns_opts), [])
   dns_search        = try(tolist([for i in lookup(each.value, "subdomains", []) : join(".", [i, local.domain])]), [])
-  domainname        = tostring(try(local.domain, "example.com"))
+  domainname        = local.domain
   env               = distinct(concat(tolist([for k, v in try(each.value.Environment, {}) : "${k}=${v}"]), local.envars, ["TAG=${lookup(each.value, "tags", "latest")}", "OAUTH2_PROXY_COOKIE_SECRET=${random_string.cookie_secret[each.key].result}"]))
   group_add         = try(tolist(each.value.group_add), [])
   image             = lower(try(docker_image.image[each.key].latest, each.key))

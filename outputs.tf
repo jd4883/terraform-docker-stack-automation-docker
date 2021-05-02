@@ -1,1 +1,1 @@
-output "stack" { value = docker_container.container.* }
+output "stack" { value = toset(docker_container.container.*) }

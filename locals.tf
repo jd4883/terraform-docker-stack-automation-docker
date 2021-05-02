@@ -1,5 +1,5 @@
 locals {
-  domain      = var.globals.dns.domain
+  domain      = tostring(try(var.globals.dns.domain, "example.com"))
   dns_servers = var.globals.dns.servers.local.addresses
   emails      = tolist(var.globals.authentication.emails)
   envars = [
