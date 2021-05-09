@@ -1,6 +1,6 @@
 module "dns" {
   for_each   = var.stack
-  cnames     = try(tolist(each.value.subdomains), [each.key])
+  cnames     = distinct(try(tolist(each.value.subdomains), [each.key]))
   domain     = local.domain
   private_ip = var.globals.networking.host_ip
   external_dns = tobool(try(each.value.external_dns, try(try(tomap(each.value.networks), {
