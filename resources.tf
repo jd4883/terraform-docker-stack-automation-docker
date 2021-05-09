@@ -73,29 +73,23 @@ resource "docker_container" "container" {
     }
   }
   dynamic "labels" {
-    for_each = tobool(try(each.value.public_dns, true)) ? merge(local.labels.v2, try(each.value.labels, {})) : {}
+    for_each = merge(
+      tobool(try(each.value.public_dns, true)) ? merge(local.labels.v2, try(each.value.labels, {})) : {},
+      {
+        "traefik.http.routers.${lower(each.key)}.rule" : "Host(${join(",", formatlist("`%s`", [for i in tolist(try(tolist(each.value.subdomains), [each.key])) : join(".", [i, local.domain])]))})",
+        "traefik.http.routers.${lower(each.key)}.service" : lower(each.key),
+        "traefik.http.services.${lower(each.key)}.loadbalancer.server.port" : split(":", replace(try(tolist(each.value.ports), ["80:80"]).0, "/", ":")).1,
+        "traefik.http.middlewares.${lower(each.key)}.headers.sslhost" : join(",", formatlist("`%s`", [for i in tolist(try(tolist(each.value.subdomains), [each.key])) : join(".", [i, local.domain])])),
+        "traefik.http.middlewares.${lower(each.key)}-compression.compress" : tobool(try(each.value.compression, false)),
+        "com.centurylinklabs.watchtower.enable": true,
+      }
+    )
     content {
       label = replace(labels.key, "PLACEHOLDER_KEY", lower(each.key))
       value = labels.value == "traefik.enable" ? try(each.value.public_dns, true) : replace(labels.value, "PLACEHOLDER_KEY", lower(each.key))
     }
   }
-  dynamic "labels" {
-    for_each = {
-      "traefik.http.routers.${lower(each.key)}.rule" : "Host(${join(",", formatlist("`%s`", [for i in tolist(try(tolist(each.value.subdomains), [each.key])) : join(".", [i, local.domain])]))})",
-      "traefik.http.routers.${lower(each.key)}.service" : lower(each.key),
-      "traefik.http.services.${lower(each.key)}.loadbalancer.server.port" : split(":", replace(try(tolist(each.value.ports), ["80:80"]).0, "/", ":")).1,
-      "traefik.http.middlewares.${lower(each.key)}.headers.sslhost" : join(",", formatlist("`%s`", [for i in tolist(try(tolist(each.value.subdomains), [each.key])) : join(".", [i, local.domain])])),
-      "traefik.http.middlewares.${lower(each.key)}-compression.compress" : tobool(try(each.value.compression, false))
-    }
-    content {
-      label = labels.key
-      value = labels.value
-    }
-  }
-  labels {
-    label = "com.centurylinklabs.watchtower.enable"
-    value = "true"
-  }
+
   lifecycle {
     create_before_destroy = false
     ignore_changes = [
