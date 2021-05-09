@@ -74,8 +74,8 @@ resource "docker_container" "container" {
   }
   dynamic "labels" {
     for_each = merge(
-      tobool(try(each.value.public_dns, true)) ? merge(local.labels.v2, try(each.value.labels, {})) : {},
-      {
+      tobool(try(each.value.public_dns, true)) ? merge(tobool(try(each.value.okta_oauth, true)) ? {} : local.labels.v2, try(each.value.labels, {})) : {},
+      tobool(try(each.value.okta_oauth, true)) ? {} : {
         "traefik.http.routers.${lower(each.key)}.rule" : "Host(${join(",", formatlist("`%s`", [for i in tolist(try(tolist(each.value.subdomains), [each.key])) : join(".", [i, local.domain])]))})",
         "traefik.http.routers.${lower(each.key)}.service" : lower(each.key),
         "traefik.http.services.${lower(each.key)}.loadbalancer.server.port" : split(":", replace(try(tolist(each.value.ports), ["80:80"]).0, "/", ":")).1,
