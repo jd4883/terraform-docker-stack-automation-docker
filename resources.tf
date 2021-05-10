@@ -74,15 +74,15 @@ resource "docker_container" "container" {
   }
   dynamic "labels" {
     for_each = merge(
-      tobool(try(each.value.public_dns, true)) ? merge(tobool(try(each.value.okta_oauth, true)) ? {} : local.labels.v2, try(each.value.labels, {})) : {},
-      tobool(try(each.value.okta_oauth, true)) ? {} : {
+      tobool(try(each.value.public_dns, true)) ? merge(tobool(try(each.value.okta_oauth, true)) ? {} : local.labels.v2, try(each.value.labels, {})) : {}, # TODO make forward auth less static
+      tobool(try(each.value.okta_oauth, true)) ? { "traefik.http.routers.${lower(each.key)}.middlewares": "traefik-forward-auth" } : {
         "traefik.http.routers.${lower(each.key)}.rule" : "Host(${join(",", formatlist("`%s`", [for i in tolist(try(tolist(each.value.subdomains), [each.key])) : join(".", [i, local.domain])]))})",
         "traefik.http.routers.${lower(each.key)}.service" : lower(each.key),
         "traefik.http.services.${lower(each.key)}.loadbalancer.server.port" : split(":", replace(try(tolist(each.value.ports), ["80:80"]).0, "/", ":")).1,
-        "traefik.http.middlewares.${lower(each.key)}.headers.sslhost" : join(",", formatlist("`%s`", [for i in tolist(try(tolist(each.value.subdomains), [each.key])) : join(".", [i, local.domain])])),
-        "traefik.http.middlewares.${lower(each.key)}-compression.compress" : tobool(try(each.value.compression, false)),
-        "com.centurylinklabs.watchtower.enable": true,
-      }
+        #"traefik.http.middlewares.${lower(each.key)}.headers.sslhost" : join(",", formatlist("`%s`", [for i in tolist(try(tolist(each.value.subdomains), [each.key])) : join(".", [i, local.domain])])),
+        #"traefik.http.middlewares.${lower(each.key)}-compression.compress" : tobool(try(each.value.compression, false)),
+      },{ "com.centurylinklabs.watchtower.enable": true }
+
     )
     content {
       label = replace(labels.key, "PLACEHOLDER_KEY", lower(each.key))
