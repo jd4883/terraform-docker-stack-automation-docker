@@ -17,10 +17,11 @@ locals {
     v2 = {
       "traefik.enable"                                           = true
       "traefik.http.routers.PLACEHOLDER_KEY.entrypoints"         = "https"
-      "traefik.http.routers.PLACEHOLDER_KEY.tls"                 = true
-      "traefik.http.routers.PLACEHOLDER_KEY.tls.certresolver"    = var.certresolver
-      "traefik.http.routers.PLACEHOLDER_KEY.tls.domains[0].main" = local.domain
-      "traefik.http.routers.PLACEHOLDER_KEY.tls.domains[0].sans" = "*.${local.domain}"
+      "traefik.docker.network" = data.docker_network.frontend.name,
+      #"traefik.http.routers.PLACEHOLDER_KEY.tls"                 = true
+      #"traefik.http.routers.PLACEHOLDER_KEY.tls.certresolver"    = var.certresolver
+      #"traefik.http.routers.PLACEHOLDER_KEY.tls.domains[0].main" = local.domain
+      #"traefik.http.routers.PLACEHOLDER_KEY.tls.domains[0].sans" = "*.${local.domain}"
     }
   }
 }
