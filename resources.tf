@@ -88,7 +88,7 @@ resource "docker_container" "container" {
     )
     content {
       label = replace(labels.key, "PLACEHOLDER_KEY", lower(each.key))
-      value = labels.value == "traefik.enable" ? try(each.value.public_dns, true) : replace(labels.value, "PLACEHOLDER_KEY", lower(each.key))
+      value = replace(labels.value, "PLACEHOLDER_KEY", lower(each.key))
     }
   }
 
