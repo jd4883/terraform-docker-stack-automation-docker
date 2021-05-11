@@ -74,6 +74,7 @@ resource "docker_container" "container" {
   }
   dynamic "labels" {
     for_each = merge(
+    "traefik.enable" ? try(each.value.public_dns, true),
       tobool(try(each.value.public_dns, true)) ? merge(tobool(try(each.value.okta_oauth, true)) ? {} : local.labels.v2, try(each.value.labels, {})) : {}, # TODO make forward auth less static
       tobool(try(each.value.okta_oauth, true)) ? {} : {
         "traefik.http.routers.${lower(each.key)}.middlewares": "forward-auth",
