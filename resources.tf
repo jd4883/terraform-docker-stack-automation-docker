@@ -110,18 +110,7 @@ resource "docker_container" "container" {
       tobool(
       each.value.networks.vpn),
       false
-      ) == true ? [] : tobool(
-      try(
-        each.value.networks.frontend,
-        false
-        ) && !try(
-        each.value.okta_oauth,
-        true
-        ) && try(
-        each.value.networks.vpn,
-      "default") == "default"
-      ) ? [data.docker_network.backend.name,
-    data.docker_network.frontend.name] : [data.docker_network.backend.name]
+      ) == true ? [] : [data.docker_network.backend.name, data.docker_network.frontend.name]
     content {
       name = networks_advanced.value
     }
