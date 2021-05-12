@@ -21,19 +21,3 @@ module "dns" {
   STSSeconds            = var.STSSeconds
   networks              = [data.docker_network.backend.id, data.docker_network.frontend.id]
 }
-
-//module "oauth2" {
-//  cnames                = local.cnames
-//  customResponseHeaders = var.customResponseHeaders
-//  domain                = var.domain
-//  emails                = var.emails
-//  envars                = var.envars
-//  labels                = var.labels
-//  name                  = var.name
-//  networks              = var.networks
-//  okta                  = module.okta.0
-//  organizr_cname        = var.organizr_cname
-//  source                = "jd4883/oauth2-terraform-config-generator-docker/docker"
-//  STSSeconds            = var.STSSeconds
-//  upstream_url          = var.upstream_url
-//}
