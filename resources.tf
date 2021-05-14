@@ -105,11 +105,7 @@ resource "docker_container" "container" {
     ]
   }
   dynamic "networks_advanced" {
-    for_each = try(
-      tobool(
-      each.value.networks.vpn),
-      false
-      ) ? [data.docker_network.backend.name, data.docker_network.frontend.name] : []
+    for_each = try(each.value.networks.vpn, "default") != "default"? [] : [data.docker_network.backend.name, data.docker_network.frontend.name]
     content {
       name = networks_advanced.value
     }
