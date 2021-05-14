@@ -77,7 +77,10 @@ resource "docker_container" "container" {
       {
         "com.centurylinklabs.watchtower.enable": true,
       },
-      substr(lower(each.key), -7, length(each.key)) == "openvpn" ? { "traefik.enable" : true } : {},
+      contains(regex("openvpn$", lower(each.key)) ? {
+        "traefik.enable" : true,
+        "traefik.docker.network" : lower(each.key),
+      } : {},
       tobool(try(each.value.public_dns, true)) ? merge(local.labels.v2, try(each.value.labels, {}), {
         "traefik.enable" : true,
         "traefik.http.routers.${lower(each.key)}.rule" : "Host(${join(",", formatlist("`%s`", [for i in tolist(try(tolist(each.value.subdomains), [each.key])) : join(".", [i, local.domain])]))})",
