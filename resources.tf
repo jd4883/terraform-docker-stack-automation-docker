@@ -75,10 +75,11 @@ resource "docker_container" "container" {
   dynamic "labels" {
     for_each = merge(
       {
-        "traefik.enable" : try(each.value.public_dns, true),
         "com.centurylinklabs.watchtower.enable": true,
       },
+      substr(lower(each.key), -7, length(each.key)) == "openvpn" ? { "traefik.enable" : true } : {},
       tobool(try(each.value.public_dns, true)) ? merge(local.labels.v2, try(each.value.labels, {}), {
+        "traefik.enable" : true,
         "traefik.http.routers.${lower(each.key)}.rule" : "Host(${join(",", formatlist("`%s`", [for i in tolist(try(tolist(each.value.subdomains), [each.key])) : join(".", [i, local.domain])]))})",
         "traefik.http.services.${lower(each.key)}.loadbalancer.server.port" : split(":", replace(try(tolist(each.value.ports), ["80:80"]).0, "/", ":")).1,
         "traefik.http.routers.${lower(each.key)}.service" : try(each.value.networks.vpn, "") == "" ? lower(each.key) : each.value.networks.vpn
