@@ -77,7 +77,7 @@ resource "docker_container" "container" {
       {
         "com.centurylinklabs.watchtower.enable": true,
       },
-      contains(regex("openvpn$", lower(each.key))) ? {
+      regex("openvpn$", lower(each.key)) ? {
         "traefik.enable" : true,
         "traefik.docker.network" : lower(each.key),
       } : {},
