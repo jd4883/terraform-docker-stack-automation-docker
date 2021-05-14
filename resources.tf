@@ -81,8 +81,7 @@ resource "docker_container" "container" {
       tobool(try(each.value.public_dns, true)) ? merge(local.labels.v2, try(each.value.labels, {}), {
         "traefik.http.routers.${lower(each.key)}.rule" : "Host(${join(",", formatlist("`%s`", [for i in tolist(try(tolist(each.value.subdomains), [each.key])) : join(".", [i, local.domain])]))})",
         "traefik.http.services.${lower(each.key)}.loadbalancer.server.port" : split(":", replace(try(tolist(each.value.ports), ["80:80"]).0, "/", ":")).1,
-        #"traefik.http.routers.${lower(each.key)}.service" : try(each.value.networks.vpn, "") == "" ? lower(each.key) : each.value.networks.vpn
-        # TODO: may need to test backend for vpn?
+        "traefik.http.routers.${lower(each.key)}.service" : try(each.value.networks.vpn, "") == "" ? lower(each.key) : each.value.networks.vpn
         #"traefik.http.middlewares.${lower(each.key)}.headers.sslhost" : join(",", formatlist("`%s`", [for i in tolist(try(tolist(each.value.subdomains), [each.key])) : join(".", [i, local.domain])])),
         #"traefik.http.middlewares.${lower(each.key)}-compression.compress" : tobool(try(each.value.compression, false)),
       }) : {}
@@ -110,7 +109,7 @@ resource "docker_container" "container" {
       tobool(
       each.value.networks.vpn),
       false
-      ) == true ? [] : [data.docker_network.backend.name, data.docker_network.frontend.name]
+      ) ? [data.docker_network.backend.name, data.docker_network.frontend.name] : []
     content {
       name = networks_advanced.value
     }
