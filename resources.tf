@@ -56,7 +56,7 @@ resource "docker_container" "container" {
   userns_mode       = try(tostring(each.value.userns_mode), "")
   working_dir       = try(each.value.working_dir, "")
   dynamic "ports" {
-    for_each = try(try(each.value.networks.vpn, "default") == "default" ? tolist(each.value.ports) : [], [])
+    for_each = try(each.value.vpn_container, false) ? concat(try(try(each.value.networks.vpn, "default") == "default" ? tolist(each.value.ports) : [], []), var.vpn_ports) : try(try(each.value.networks.vpn, "default") == "default" ? tolist(each.value.ports) : [], [])
     content {
       internal = tonumber(split(":", replace(ports.value, "/", ":")).1)
       external = tonumber(split(":", replace(ports.value, "/", ":")).0)
