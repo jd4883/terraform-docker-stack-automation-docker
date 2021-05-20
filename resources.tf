@@ -1,10 +1,10 @@
 resource "docker_image" "image" {
-  for_each = try(var.stack, {})
+  for_each = local.stacks
   name     = join(":", [try(each.value.Image, each.key), try(each.value.tags, "latest")])
 }
 
 resource "docker_container" "container" {
-  for_each = try(var.stack, {})
+  for_each = local.stacks
   dynamic "devices" {
     for_each = try(tolist(each.value.devices), [])
     content {
@@ -77,18 +77,19 @@ resource "docker_container" "container" {
       {
         "com.centurylinklabs.watchtower.enable": true,
       },
-      try(tobool(regex("openvpn$", lower(each.key))), false) ? {
-        "traefik.enable" : true,
-        "traefik.docker.network" : lower(each.key),
-      } : {},
-      tobool(try(each.value.public_dns, true)) ? merge(local.labels.v2, try(each.value.labels, {}), {
+      tobool(try(each.value.public_dns, true) && try(each.value.networks.vpn, "") == "") ? merge(local.labels.v2, try(each.value.labels, {}), {
         "traefik.enable" : true,
         "traefik.http.routers.${lower(each.key)}.rule" : "Host(${join(",", formatlist("`%s`", [for i in tolist(try(tolist(each.value.subdomains), [each.key])) : join(".", [i, local.domain])]))})",
         "traefik.http.services.${lower(each.key)}.loadbalancer.server.port" : split(":", replace(try(tolist(each.value.ports), ["80:80"]).0, "/", ":")).1,
         "traefik.http.routers.${lower(each.key)}.service" : try(each.value.networks.vpn, "") == "" ? lower(each.key) : each.value.networks.vpn,
         #"traefik.http.middlewares.${lower(each.key)}.headers.sslhost" : join(",", formatlist("`%s`", [for i in tolist(try(tolist(each.value.subdomains), [each.key])) : join(".", [i, local.domain])])),
         #"traefik.http.middlewares.${lower(each.key)}-compression.compress" : tobool(try(each.value.compression, false)),
-      }) : {}
+      }) : {},
+      try(each.value.vpn_container, false) ? merge(
+          local.labels.v2,
+          try(each.value.labels, {}),
+          { "traefik.enable" : true },
+          var.vpn_labels) : {}
     )
     content {
       label = replace(labels.key, "PLACEHOLDER_KEY", lower(each.key))

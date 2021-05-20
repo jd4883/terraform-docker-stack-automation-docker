@@ -8,6 +8,7 @@ variable "certresolver" { default = "le" }
 variable "stack" {}
 variable "stack_name" { type = string }
 variable "STSSeconds" { default = 315360000 }
+variable "vpn_labels" { default = {} }
 
 variable "cookie_secret_length" {
   type    = number
