@@ -75,9 +75,9 @@ resource "docker_container" "container" {
   dynamic "labels" {
     for_each = merge(
       {
-        "com.centurylinklabs.watchtower.enable": true,
+        "com.centurylinklabs.watchtower.enable" : true,
       },
-      tobool(try(each.value.public_dns, true) && try(each.value.networks.vpn, "") == "") ? merge(local.labels.v2, try(each.value.labels, {}), {
+      try(each.value.public_dns, true) ? merge(local.labels.v2, try(each.value.labels, {}), {
         "traefik.enable" : true,
         "traefik.http.routers.${lower(each.key)}.rule" : "Host(${join(",", formatlist("`%s`", [for i in tolist(try(tolist(each.value.subdomains), [each.key])) : join(".", [i, local.domain])]))})",
         "traefik.http.services.${lower(each.key)}.loadbalancer.server.port" : split(":", replace(try(tolist(each.value.ports), ["80:80"]).0, "/", ":")).1,
@@ -86,10 +86,10 @@ resource "docker_container" "container" {
         #"traefik.http.middlewares.${lower(each.key)}-compression.compress" : tobool(try(each.value.compression, false)),
       }) : {},
       try(each.value.vpn_container, false) ? merge(
-          local.labels.v2,
-          try(each.value.labels, {}),
-          { "traefik.enable" : true },
-          var.vpn_labels) : {}
+        local.labels.v2,
+        try(each.value.labels, {}),
+        { "traefik.enable" : true },
+      var.vpn_labels) : {}
     )
     content {
       label = replace(labels.key, "PLACEHOLDER_KEY", lower(each.key))
@@ -110,7 +110,7 @@ resource "docker_container" "container" {
     ]
   }
   dynamic "networks_advanced" {
-    for_each = try(each.value.networks.vpn, "default") != "default"? [] : [data.docker_network.backend.name, data.docker_network.frontend.name]
+    for_each = try(each.value.networks.vpn, "default") != "default" ? [] : [data.docker_network.backend.name, data.docker_network.frontend.name]
     content {
       name = networks_advanced.value
     }

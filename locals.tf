@@ -1,8 +1,8 @@
 locals {
-  stacks = try(var.stack, {})
-  domain = tostring(try(var.globals.dns.domain, "example.com"))
+  stacks      = try(var.stack, {})
+  domain      = tostring(try(var.globals.dns.domain, "example.com"))
   dns_servers = var.globals.dns.servers.local.addresses
-  emails = tolist(var.globals.authentication.emails)
+  emails      = tolist(var.globals.authentication.emails)
   envars = [
     "DEBUG=${var.debug}",
     "DOMAIN=${local.domain}",
@@ -18,3 +18,4 @@ locals {
     v2 = {}
   }
 }
+
