@@ -81,7 +81,7 @@ resource "docker_container" "container" {
         "traefik.enable" : true,
         "traefik.http.routers.${lower(each.key)}.rule" : "Host(${join(",", formatlist("`%s`", [for i in tolist(try(tolist(each.value.subdomains), [each.key])) : join(".", [i, local.domain])]))})",
         "traefik.http.services.${lower(each.key)}.loadbalancer.server.port" : split(":", replace(try(tolist(each.value.ports), ["80:80"]).0, "/", ":")).1,
-        "traefik.http.routers.${lower(each.key)}.service" : try(each.value.networks.vpn, "") == "" ? lower(each.key) : each.value.networks.vpn,
+        "traefik.http.routers.${lower(each.key)}.service" : lower(each.key),
         #"traefik.http.middlewares.${lower(each.key)}.headers.sslhost" : join(",", formatlist("`%s`", [for i in tolist(try(tolist(each.value.subdomains), [each.key])) : join(".", [i, local.domain])])),
         #"traefik.http.middlewares.${lower(each.key)}-compression.compress" : tobool(try(each.value.compression, false)),
       }) : {},
