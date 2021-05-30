@@ -84,8 +84,7 @@ resource "docker_container" "container" {
         #"traefik.http.routers.${lower(each.key)}.service" : try(each.value.networks.vpn, "") == "" ? lower(each.key) : each.value.networks.vpn,
         #"traefik.http.middlewares.${lower(each.key)}.headers.sslhost" : join(",", formatlist("`%s`", [for i in tolist(try(tolist(each.value.subdomains), [each.key])) : join(".", [i, local.domain])])),
         #"traefik.http.middlewares.${lower(each.key)}-compression.compress" : tobool(try(each.value.compression, false)),
-      }) : {},
-      try(each.value.networks.vpn, "") == "" ? {} : { "traefik.http.routers.${lower(each.key)}.service" : lower(each.key) },
+      }, try(each.value.networks.vpn, "") == "" ? {} : { "traefik.http.routers.${lower(each.key)}.service" : lower(each.key) }) : {},
       try(each.value.vpn_container, false) ? merge(
         local.labels.v2,
         try(each.value.labels, {}),
