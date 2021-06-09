@@ -14,8 +14,5 @@ locals {
     "PUID=${var.globals.authentication.puid}",
     "TZ=${var.globals.tz}",
   ]
-  labels = {
-    v2 = {}
-  }
 }
 
