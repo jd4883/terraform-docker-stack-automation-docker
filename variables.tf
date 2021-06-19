@@ -10,16 +10,17 @@ variable "stack_name" { type = string }
 variable "STSSeconds" { default = 315360000 }
 variable "vpn_labels" { default = {} }
 variable "vpn_ports" { default = [] }
+variable "images" { type = map(map(string)) }
 
-variable "cookie_secret_length" {
-  type    = number
-  default = 32
-}
-
-variable "cookie_secret_special" {
-  type    = bool
-  default = true
-}
+//variable "cookie_secret_length" {
+//  type    = number
+//  default = 32
+//}
+//
+//variable "cookie_secret_special" {
+//  type    = bool
+//  default = true
+//}
 
 variable "network_backend" {
   type    = string
