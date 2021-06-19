@@ -25,7 +25,7 @@ resource "docker_container" "container" {
   env               = distinct(concat(tolist([for k, v in tomap(lookup(each.value, "Environment", {})) : "${k}=${v}"]), local.envars, ["TAG=${lookup(each.value, "tags", "latest")}"]))
   group_add         = lookup(each.value, "group_add", [])
   hostname          = try(each.value.networks.vpn, "default") == "default" ? lookup(each.value, "hostname", lower(each.key)) : null
-  image             = lookup(var.images, lower(each.key)).id
+  image             = lookup(var.images, each.key).id
   log_driver        = tostring(lookup(each.value, "log_driver", "json-file"))
   log_opts          = tomap(lookup(each.value, "log_opts", {}))
   logs              = tobool(lookup(each.value, "logs", false))
