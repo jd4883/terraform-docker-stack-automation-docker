@@ -1,8 +1,3 @@
-//resource "docker_image" "image" {
-//  for_each = local.stacks
-//  name     = join(":", [try(each.value.Image, each.key), try(each.value.tags, "latest")])
-//}
-
 resource "docker_container" "container" {
   for_each = local.stacks
   dynamic "devices" {
@@ -22,14 +17,12 @@ resource "docker_container" "container" {
   command           = lookup(each.value, "Commands", [])
   cpu_set           = tostring(lookup(each.value, "cpu_set", "0-1"))
   cpu_shares        = tonumber(lookup(each.value, "cpu", null))
-  #depends_on        = [data.docker_network.backend, random_string.cookie_secret]
   dns               = try(each.value.networks.vpn, "default") == "default" ? try(tolist(each.value.dns), local.dns_servers) : []
   dns_opts          = lookup(each.value, "dns_opts", [])
   dns_search        = try(tolist([for i in lookup(each.value, "subdomains", []) : join(".", [i, local.domain])]), [])
   domainname        = local.domain
   entrypoint        = lookup(each.value, "Entrypoint", [])
   env               = distinct(concat(tolist([for k, v in tomap(lookup(each.value, "Environment", {})) : "${k}=${v}"]), local.envars, ["TAG=${lookup(each.value, "tags", "latest")}"]))
-  #env               = distinct(concat(tolist([for k, v in tomap(lookup(each.value, "Environment", {})) : "${k}=${v}"]), local.envars, ["TAG=${lookup(each.value, "tags", "latest")}", "OAUTH2_PROXY_COOKIE_SECRET=${random_string.cookie_secret[each.key].result}"]))
   group_add         = lookup(each.value, "group_add", [])
   hostname          = try(each.value.networks.vpn, "default") == "default" ? lookup(each.value, "hostname", lower(each.key)) : null
   image             = lookup(module.images, lower(each.key)).id ##lower(try(docker_image.image[each.key].latest, each.key))
