@@ -7,7 +7,7 @@ resource "docker_container" "container" {
     }
   }
   dynamic "capabilities" {
-    for_each = lookup(each.value, "capabilities", {})
+    for_each = lookup(each.value, "capabilities", [])
     content {
       add  = try(capabilities.value.add, [])
       drop = try(capabilities.value.drop, [])
