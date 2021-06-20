@@ -17,5 +17,5 @@ module "dns" {
   customResponseHeaders = var.customResponseHeaders
   organizr_cname        = var.organizr_cname
   STSSeconds            = var.STSSeconds
-  networks              = [data.docker_network.backend.id, data.docker_network.frontend.id]
+  networks              = var.networks.*.id
 }
