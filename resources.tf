@@ -9,8 +9,8 @@ resource "docker_container" "container" {
   dynamic "capabilities" {
     for_each = lookup(each.value, "capabilities", [])
     content {
-      add  = try(capabilities.value.add, [])
-      drop = try(capabilities.value.drop, [])
+      add  = lookup(capabilities.value, "add", [])
+      drop = lookup(capabilities.value, "drop", [])
     }
   }
   attach            = lookup(each.value, "userns_mode", false)
@@ -103,7 +103,7 @@ resource "docker_container" "container" {
     ]
   }
   dynamic "networks_advanced" {
-    for_each = try(each.value.networks.vpn, "default") != "default" ? [] : [data.docker_network.backend.name, data.docker_network.frontend.name]
+    for_each = try(each.value.networks.vpn, "default") != "default" ? [] : var.networks.*.name
     content {
       name = networks_advanced.value
     }
