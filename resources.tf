@@ -73,7 +73,7 @@ resource "docker_container" "container" {
       },
       tobool(lookup(each.value, "public_dns", true)) ? merge(lookup(each.value, "labels", {}), {
         "traefik.enable" : true,
-        "traefik.http.routers.PLACEHOLDER_KEY.rule" : "Host(${join(",", formatlist("`%s`", [for i in lookup(each.value, "subdomains", [each.key]): join(".", [i, local.domain])]))})",
+        "traefik.http.routers.PLACEHOLDER_KEY.rule" : "Host(${join(",", formatlist("`%s`", [for i in lookup(each.value, "subdomains", [each.key]) : join(".", [i, local.domain])]))})",
         "traefik.http.services.PLACEHOLDER_KEY.loadbalancer.server.port" : split(":", replace(try(tolist(each.value.ports), ["80:80"]).0, "/", ":")).1,
         #"traefik.http.routers.PLACEHOLDER_KEY.service" : try(each.value.networks.vpn, "") == "" ? PLACEHOLDER_KEY : each.value.networks.vpn,
         #"traefik.http.middlewares.PLACEHOLDER_KEY.headers.sslhost" : join(",", formatlist("`%s`", [for i in tolist(try(tolist(each.value.subdomains), [each.key])) : join(".", [i, local.domain])])),
