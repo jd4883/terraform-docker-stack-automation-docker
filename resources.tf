@@ -73,12 +73,12 @@ resource "docker_container" "container" {
       },
       tobool(lookup(each.value, "public_dns", true)) ? merge(lookup(each.value, "labels", {}), {
         "traefik.enable" : true,
-        "traefik.http.routers.${lower(each.key)}.rule" : "Host(${join(",", formatlist("`%s`", [for i in tolist(try(tolist(each.value.subdomains), [each.key])) : join(".", [i, local.domain])]))})",
-        "traefik.http.services.${lower(each.key)}.loadbalancer.server.port" : split(":", replace(try(tolist(each.value.ports), ["80:80"]).0, "/", ":")).1,
-        #"traefik.http.routers.${lower(each.key)}.service" : try(each.value.networks.vpn, "") == "" ? lower(each.key) : each.value.networks.vpn,
-        #"traefik.http.middlewares.${lower(each.key)}.headers.sslhost" : join(",", formatlist("`%s`", [for i in tolist(try(tolist(each.value.subdomains), [each.key])) : join(".", [i, local.domain])])),
-        #"traefik.http.middlewares.${lower(each.key)}-compression.compress" : tobool(try(each.value.compression, false)),
-      }, try(each.value.networks.vpn, "") == "" ? {} : { "traefik.http.routers.${lower(each.key)}.service" : lower(each.key) }) : {},
+        "traefik.http.routers.PLACEHOLDER_KEY.rule" : "Host(${join(",", formatlist("`%s`", [for i in lookup(each.value, "subdomains", [each.key]): join(".", [i, local.domain])]))})",
+        "traefik.http.services.PLACEHOLDER_KEY.loadbalancer.server.port" : split(":", replace(try(tolist(each.value.ports), ["80:80"]).0, "/", ":")).1,
+        #"traefik.http.routers.PLACEHOLDER_KEY.service" : try(each.value.networks.vpn, "") == "" ? PLACEHOLDER_KEY : each.value.networks.vpn,
+        #"traefik.http.middlewares.PLACEHOLDER_KEY.headers.sslhost" : join(",", formatlist("`%s`", [for i in tolist(try(tolist(each.value.subdomains), [each.key])) : join(".", [i, local.domain])])),
+        #"traefik.http.middlewares.PLACEHOLDER_KEY-compression.compress" : tobool(try(each.value.compression, false)),
+      }, try(each.value.networks.vpn, "") == "" ? {} : { "traefik.http.routers.PLACEHOLDER_KEY.service" : "PLACEHOLDER_KEY" }) : {},
       tobool(lookup(each.value, "vpn_container", false)) ? merge(
         try(each.value.labels, {}),
         { "traefik.enable" : true },
