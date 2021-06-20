@@ -93,12 +93,13 @@ resource "docker_container" "container" {
   lifecycle {
     create_before_destroy = false
     ignore_changes = [
+      capabilities,
+      command,
       container_logs,
       exit_code,
+      healthcheck,
       links,
       network_data,
-      command,
-      healthcheck,
       network_mode,
     ]
   }
