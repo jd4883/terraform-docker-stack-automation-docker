@@ -104,7 +104,7 @@ resource "docker_container" "container" {
     ]
   }
   dynamic "networks_advanced" {
-    for_each = (contains([try(each.value.networks.vpn, "default")], "vpn") || contains([try(each.value.network_mode, "default")], "host")) ? [] : var.networks.*.name
+    for_each = (!contains([try(each.value.networks.vpn, "")], "") || contains([try(each.value.network_mode, "default")], "host")) ? [] : var.networks.*.name
     content {
       name = networks_advanced.value
     }
