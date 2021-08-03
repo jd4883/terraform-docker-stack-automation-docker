@@ -36,7 +36,7 @@ resource "docker_container" "container" {
   name              = lower(tostring(each.key))
   network_mode      = (lookup(each.value, "network-mode", "default") == "host") 
     ? "host" 
-    : (lookup(each.value, "networks", "default") == "vpn") 
+    : ((lookup(each.value, "networks", "default") == "vpn") 
       ? "container:${lookup(each.value, "networks").vpn}") 
       : "default")
   pid_mode          = tostring(lookup(each.value, "pid_mode", "host"))
