@@ -34,11 +34,7 @@ resource "docker_container" "container" {
   memory_swap       = tonumber(lookup(each.value, "memory_swap", 0))
   must_run          = tobool(lookup(each.value, "must_run", true))
   name              = lower(tostring(each.key))
-  network_mode      = contains([lookup(each.value, "network-mode", "default")],"host") 
-    ? "host" 
-    : (contains([lookup(each.value, "networks", "default")], "vpn")
-      ? "container:${lookup(each.value, "networks").vpn}" 
-      : "default")
+  network_mode      = !contains(lookup(lookup(each.value, "networks", { "vpn" : "default" }), "vpn", "default")) ? (lookup(each.value, "network-mode", False) ? lookup(each.value, "network-mode", "default") == "host" : "container:${lookup(each.value, "networks").vpn}"): "default"
   pid_mode          = tostring(lookup(each.value, "pid_mode", "host"))
   privileged        = tobool(lookup(each.value, "privileged", false))
   publish_all_ports = tobool(lookup(each.value, "publish_all_ports", false))
