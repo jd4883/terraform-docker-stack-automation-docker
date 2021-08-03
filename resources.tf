@@ -34,7 +34,7 @@ resource "docker_container" "container" {
   memory_swap       = tonumber(lookup(each.value, "memory_swap", 0))
   must_run          = tobool(lookup(each.value, "must_run", true))
   name              = lower(tostring(each.key))
-  network_mode      = (lookup(each.value, "network-mode", "default") == "host") 
+  network_mode      = contains([lookup(each.value, "network-mode", "default")],"host") 
     ? "host" 
     : ((lookup(each.value, "networks", "default") == "vpn") 
       ? "container:${lookup(each.value, "networks").vpn}") 
