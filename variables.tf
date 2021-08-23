@@ -12,3 +12,4 @@ variable "vpn_labels" { default = {} }
 variable "vpn_ports" { default = [] }
 variable "images" { type = map(map(string)) }
 variable "networks" {}
+variable "exec" {}
