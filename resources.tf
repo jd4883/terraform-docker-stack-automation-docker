@@ -110,7 +110,6 @@ resource "docker_container" "container" {
     }
   }
   provisioner "remote-exec" {
-    provisioner "remote-exec" {
     connection {
       type     = var.exec.type
       user     = var.exec.user
