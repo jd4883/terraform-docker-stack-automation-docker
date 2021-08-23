@@ -109,7 +109,14 @@ resource "docker_container" "container" {
       name = networks_advanced.value
     }
   }
-  provisioner "local-exec" {
-    command = tostring(join(" && ", try(each.value.provisioner, ["docker container logs ${lower(each.key)}"])))
+  provisioner "remote-exec" {
+    provisioner "remote-exec" {
+    connection {
+      type     = var.exec.type
+      user     = var.exec.user
+      password = var.exec.password
+      host     = var.exec.host
+    }
+    inline = try(each.value.provisioner, ["docker container logs ${lower(each.key)}"])
   }
 }
