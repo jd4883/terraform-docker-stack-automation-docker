@@ -10,7 +10,7 @@ terraform {
       source = "kreuzwerker/docker"
     }
     okta = {
-      source = "oktadeveloper/okta"
+      source = "okta/okta"
     }
   }
 }
