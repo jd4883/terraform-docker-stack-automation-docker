@@ -17,9 +17,9 @@ resource "docker_container" "container" {
   command           = lookup(each.value, "Commands", [])
   cpu_set           = tostring(lookup(each.value, "cpu_set", "0-1"))
   cpu_shares        = tonumber(lookup(each.value, "cpu", null))
-  dns               = try(each.value.networks.vpn, "default") == "default" ? try(tolist(each.value.dns), local.dns_servers) : []
+  dns               = alltrue([try(each.value.networks.vpn, "default") == "default"]) ? lookup(each.value, "dns", local.dns_servers) : []
   dns_opts          = lookup(each.value, "dns_opts", [])
-  dns_search        = try(tolist([for i in lookup(each.value, "subdomains", []) : join(".", [i, local.domain])]), [])
+  dns_search        = sort(distinct(concat([for i in lookup(each.value, "subdomains", []) : join(".", [i, local.domain])], local.domain)))
   domainname        = local.domain
   entrypoint        = lookup(each.value, "Entrypoint", [])
   env               = distinct(concat(tolist([for k, v in tomap(lookup(each.value, "Environment", {})) : "${k}=${v}"]), local.envars, ["TAG=${lookup(each.value, "tags", "latest")}"]))
