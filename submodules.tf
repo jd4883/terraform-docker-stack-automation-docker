@@ -1,4 +1,9 @@
 module "dns" {
+  source                = "jd4883/internal-external-dns-automation-docker/docker"
+  providers = {
+    pihole.ns1 = pihole.ns1
+    pihole.ns2 = pihole.ns2
+   }
   STSSeconds            = var.STSSeconds
   cnames                = distinct(concat(lookup(each.value, "subdomains", []), [each.key]))
   customResponseHeaders = var.customResponseHeaders
@@ -15,6 +20,5 @@ module "dns" {
   okta_oauth            = tobool(lookup(each.value, "okta_oauth", true))
   organizr_cname        = var.organizr_cname
   private_ip            = var.globals.networking.host_ip
-  source                = "jd4883/internal-external-dns-automation-docker/docker"
   upstream_url          = "http://${try(each.value.networks.vpn, lookup(each.value, "hostname", lower(each.key)))}:${split(":", replace(try(tolist(each.value.ports), ["80:80"]).0, "/", ":")).1}"
 }
