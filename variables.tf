@@ -13,7 +13,7 @@ variable "vpn_ports" { default = [] }
 variable "images" { type = map(map(string)) }
 variable "networks" {}
 variable "exec" {}
-variable "local_domain {
+variable "local_domain" {
   type = string
   default = "example.com"
 }
