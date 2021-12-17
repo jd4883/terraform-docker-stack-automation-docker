@@ -5,6 +5,7 @@ module "dns" {
     pihole.ns2 = pihole.ns2
    }
   STSSeconds            = var.STSSeconds
+  local_domain          = var.local_domain
   cnames                = distinct(concat(lookup(each.value, "subdomains", []), [each.key]))
   customResponseHeaders = var.customResponseHeaders
   domain                = local.domain
